@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<operators name="stardog" version="6.0" docbundle="jbalint/rapidminer/stardog/resources/i18n/OperatorsDocStardog">
+    <group key="">
+        <operator>
+            <key>stardog_read_from_sparql_query</key>
+            <class>jbalint.rapidminer.stardog.stardog.StardogSparqlReader</class>
+            <icon>inbox_into.png</icon>
+        </operator>
+        <operator>
+            <key>stardog_write</key>
+            <class>jbalint.rapidminer.stardog.stardog.StardogExampleSetWriter</class>
+            <icon>inbox_out.png</icon>
+        </operator>
+    </group>
+</operators>
