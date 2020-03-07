@@ -5,7 +5,11 @@ buildscript {
 	}
 }
 
-plugins { id 'com.rapidminer.extension' version '0.9.4' }
+plugins {
+    id 'com.rapidminer.extension' version '0.9.4'
+    // TODO : not working. no public git repo? how to use this?
+    //id 'com.rapidminer.extension-testing' version '0.3.2'
+}
 
 // Define Maven artifact repositories
 repositories {
@@ -25,6 +29,7 @@ extensionConfig {
     dependencies {
         rapidminer '9.5.0'
     }
+    //runProcessTests = true
 }
 
 def stardogVersion = "7.2.0"
@@ -32,4 +37,6 @@ def stardogVersion = "7.2.0"
 dependencies {
 	compile("com.complexible.stardog:client-http:${stardogVersion}") {
 	}
+	compile("com.stardog.stark.io:stardog-stark-io-turtle:${stardogVersion}")
+	compile("com.stardog.stark.io:stardog-stark-io-trig:${stardogVersion}")
 }

@@ -1,30 +1,27 @@
 /*
- * Jess Balint
+ * Copyright 2020 Jess Balint
  *
- * Copyright (C) 2020-2020 by Jess Balint and the contributors
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Complete list of developers available at our web site:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * https://github.com/jbalint/rapidminer-stardog
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the
- * GNU Affero General Public License as published by the Free Software Foundation, either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License along with this program.
- * If not, see http://www.gnu.org/licenses/.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package jbalint.rapidminer.stardog.stardog;
 
 import java.util.List;
 
+import com.complexible.stardog.PercentEncoding;
 import com.complexible.stardog.api.Connection;
 import com.complexible.stardog.api.ConnectionConfiguration;
+import com.stardog.stark.IRI;
 import com.stardog.stark.Values;
 import com.stardog.stark.util.GraphBuilder;
 import com.stardog.stark.util.ResourceBuilder;
@@ -38,21 +35,39 @@ import com.rapidminer.operator.OperatorException;
 import com.rapidminer.operator.io.AbstractExampleSetWriter;
 import com.rapidminer.parameter.ParameterType;
 import com.rapidminer.parameter.ParameterTypeString;
+import com.rapidminer.parameter.UndefinedParameterError;
 
 /**
- * TODO :
+ * Write an {@link ExampleSet} to a Stardog database
  */
 public class StardogExampleSetWriter extends AbstractExampleSetWriter {
 
+	/**
+	 * URL parameter
+	 */
 	public static final String PARAMETER_URL = "url";
 
+
+	/**
+	 * Username parameter
+	 */
 	public static final String PARAMETER_USERNAME = "username";
 
+
+	/**
+	 * Password parameter
+	 */
 	public static final String PARAMETER_PASSWORD = "password";
 
+
+	/**
+	 * Graph name parameter
+	 */
 	public static final String PARAMETER_GRAPH_NAME = "graph name";
 
-	// TODO : something
+	/**
+	 * // TODO : namespace used for all IRIs. allow setting this as a parameter
+	 */
 	public static final String TEMP_NS = "http://example.com/";
 
 	public StardogExampleSetWriter(OperatorDescription description) {
@@ -91,7 +106,9 @@ public class StardogExampleSetWriter extends AbstractExampleSetWriter {
 	}
 
 	/**
-	 * TODO :
+	 * Create a new resource (subject) for an observation in the example set. It will be added to the {@code graphBuilder} and the returned {@code
+	 * ResourceBuilder} can be used to add statements to the graph. The value for {@code labelAttr} will be used to generate the subject resource, if
+	 * present. Otherwise, a bnode will be created.
 	 */
 	private static ResourceBuilder newExampleResource(GraphBuilder graphBuilder, Attribute labelAttr, Example example) {
 		ResourceBuilder statements;
@@ -101,44 +118,47 @@ public class StardogExampleSetWriter extends AbstractExampleSetWriter {
 		else {
 			String label;
 			if (labelAttr.isNominal()) {
-				// TODO : probably unnecessary
 				label = example.getNominalValue(labelAttr);
 			}
 			else {
 				label = example.getValueAsString(labelAttr);
 			}
-			// TODO : do i need percent encoding here?
-			statements = graphBuilder.iri(Values.iri(TEMP_NS, label));
+			statements = graphBuilder.iri(Values.iri(TEMP_NS, PercentEncoding.encodeIri(label)));
 		}
 		return statements;
 	}
 
 	/**
-	 * TODO : something
+	 * Add {@code example} to the {@code statements} graph
 	 */
 	private static void addExampleToGraph(Example example, ResourceBuilder statements, Attributes attrs) {
 		for (Attribute attr : attrs) {
+			IRI property = Values.iri(TEMP_NS, PercentEncoding.encodeIri(attr.getName()));
 			if (attr.isNominal()) {
-				statements.addProperty(Values.iri(TEMP_NS, attr.getName()),
+				statements.addProperty(property,
 				                       Values.literal(example.getValueAsString(attr)));
 			}
 			else if (attr.isDateTime()) {
-				statements.addProperty(Values.iri(TEMP_NS, attr.getName()),
+				statements.addProperty(property,
 				                       Values.literal(example.getDateValue(attr)));
 			}
 			else {
-				statements.addProperty(Values.iri(TEMP_NS, attr.getName()),
+				statements.addProperty(property,
 				                       Values.literal(example.getValue(attr)));
 			}
 		}
 	}
 
+	private Connection connect() throws UndefinedParameterError {
+		return ConnectionConfiguration.from(getParameter(PARAMETER_URL))
+		                              .credentials(getParameter(PARAMETER_USERNAME),
+		                                           getParameter(PARAMETER_PASSWORD))
+		                              .connect();
+	}
+
 	@Override
 	public ExampleSet write(ExampleSet ioobject) throws OperatorException {
-		try (Connection conn = ConnectionConfiguration.from(getParameter(PARAMETER_URL))
-		                                              .credentials(getParameter(PARAMETER_USERNAME),
-		                                                           getParameter(PARAMETER_PASSWORD))
-		                                              .connect()) {
+		try (Connection conn = connect()) {
 			conn.begin();
 			GraphBuilder graphBuilder = new GraphBuilder();
 			Attributes attrs = ioobject.getAttributes();

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.5.000">
+	<context>
+		<input/>
+		<output/>
+		<macros/>
+	</context>
+	<operator activated="true" class="process" compatibility="9.5.000" expanded="true" name="Process">
+		<parameter key="logverbosity" value="init"/>
+		<parameter key="random_seed" value="2001"/>
+		<parameter key="send_mail" value="never"/>
+		<parameter key="notification_email" value=""/>
+		<parameter key="process_duration_for_mail" value="30"/>
+		<parameter key="encoding" value="SYSTEM"/>
+		<process expanded="true">
+			<operator activated="true" class="retrieve" compatibility="9.5.000" expanded="true" height="68" name="Retrieve Titanic" width="90" x="45" y="34">
+				<parameter key="repository_entry" value="//Samples/data/Titanic"/>
+			</operator>
+			<operator activated="true" class="stardog:stardog_write" compatibility="1.0.000" expanded="true" height="68" name="Write Stardog" width="90" x="179" y="34">
+				<parameter key="url" value="https://localhost/stardog/test"/>
+				<parameter key="username" value="admin"/>
+				<parameter key="password" value="admin"/>
+				<parameter key="graph name" value="http://example.com/rapidminer"/>
+			</operator>
+			<connect from_op="Retrieve Titanic" from_port="output" to_op="Write Stardog" to_port="input"/>
+			<connect from_op="Write Stardog" from_port="through" to_port="result 1"/>
+			<portSpacing port="source_input 1" spacing="0"/>
+			<portSpacing port="sink_result 1" spacing="0"/>
+			<portSpacing port="sink_result 2" spacing="0"/>
+		</process>
+	</operator>
+</process>

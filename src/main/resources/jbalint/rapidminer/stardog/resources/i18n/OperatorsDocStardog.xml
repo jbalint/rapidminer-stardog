@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<operatorHelp lang="en_EN">
+
+    <operator>
+        <key>stardog_read_from_sparql_query</key>
+        <name>Read Stardog from SPARQL Query</name>
+        <synopsis>Read data from Stardog by providing a SPARQL query.</synopsis>
+    </operator>
+
+    <operator>
+        <key>stardog_write</key>
+        <name>Write Stardog</name>
+        <synopsis>Write data to Stardog.</synopsis>
+    </operator>
+
+</operatorHelp>
