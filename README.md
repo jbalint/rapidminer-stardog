@@ -1,3 +1,7 @@
+RapidMiner Stardog Integration
+
+TODO : write more
+
 RapidMiner Extension Template
 =============================
 
